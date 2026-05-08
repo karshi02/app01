@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Finder - ตัวเปิดแอพด่วนสำหรับ Windows</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 80px 20px 60px;
+            background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%);
+        }
+
+        .logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #a8c0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .tagline {
+            font-size: 20px;
+            color: #a8c0ff;
+            margin-bottom: 10px;
+        }
+
+        .hotkey-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-family: monospace;
+            font-size: 18px;
+            margin-top: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .hotkey-badge span {
+            background: #2d2d44;
+            padding: 5px 12px;
+            border-radius: 8px;
+            margin: 0 5px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        /* Features Grid */
+        .features {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px 25px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #b8c6db;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Download Section */
+        .download-section {
+            text-align: center;
+            padding: 60px 20px 80px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 100%);
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            background: linear-gradient(135deg, #00b4d8, #0077b6);
+            padding: 18px 42px;
+            border-radius: 60px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 10px 30px rgba(0,180,216,0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,180,216,0.4);
+        }
+
+        .download-btn:active {
+            transform: scale(0.98);
+        }
+
+        .version {
+            margin-top: 20px;
+            color: #7a8cae;
+            font-size: 14px;
+        }
+
+        .size-badge {
+            display: inline-block;
+            background: rgba(0,0,0,0.3);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        /* Screenshot Section */
+        .screenshot {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .screenshot-preview {
+            background: #0a0a1a;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #2a2a4a;
+            font-family: monospace;
+            text-align: left;
+        }
+
+        .preview-header {
+            background: #1a1a2e;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff5f56;
+        }
+
+        .preview-dot:nth-child(2) { background: #ffbd2e; }
+        .preview-dot:nth-child(3) { background: #27c93f; }
+
+        .preview-search {
+            background: #0f0f23;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: #00ff88;
+        }
+
+        .preview-result {
+            padding: 10px;
+            border-bottom: 1px solid #1a1a3a;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .preview-result .icon { font-size: 24px; }
+        .preview-result .name { color: #fff; }
+        .preview-result .path { color: #6c6c8a; font-size: 12px; }
+
+        /* Instructions */
+        .instructions {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .instruction-step {
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-left: 4px solid #00b4d8;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00b4d8, #0077b6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .step-text {
+            flex: 1;
+        }
+
+        .step-text strong {
+            color: #00b4d8;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #6c6c8a;
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 32px; }
+            .tagline { font-size: 16px; }
+            .download-btn { font-size: 18px; padding: 14px 28px; }
+            .feature-card { padding: 20px; }
+            .instruction-step { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="logo">🔍</div>
+        <h1>Smart Finder</h1>
+        <div class="tagline">Universal App Launcher for Windows</div>
+        <div class="hotkey-badge">
+            กด <span>Ctrl + Alt + Space</span> ได้ทุกที่ → เปิดแอพทันที
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="features">
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Global Hotkey</h3>
+            <p>กด hotkey ได้จากทุกหน้าต่าง ไม่ต้องเปิด Start Menu หรือ Explorer</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🎨</div>
+            <h3>แสดงไอคอนจริง</h3>
+            <p>เห็นไอคอนของแต่ละแอพ ทำให้เลือกง่ายและรวดเร็ว</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Smart Ranking</h3>
+            <p>แอพที่ใช้บ่อยจะขึ้นก่อนอัตโนมัติ เรียนรู้นิสัยการใช้งานคุณ</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🚀</div>
+            <h3>เร็วทันใจ</h3>
+            <p>ผลลัพธ์อัปเดตทันทีขณะพิมพ์ โหลดเร็ว ใช้ RAM แค่ ~10MB</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔧</div>
+            <h3>ปรับได้หมด</h3>
+            <p>เปลี่ยน hotkey, ตั้งค่า startup, ปรับจำนวนผลลัพธ์ได้ตามชอบ</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🪶</div>
+            <h3>เบาที่สุด</h3>
+            <p>ไฟล์ติดตั้งแค่ ~100KB รองรับ Windows 7 ถึง 11</p>
+        </div>
+    </div>
+
+    <!-- Screenshot Preview -->
+    <div class="screenshot">
+        <div class="screenshot-preview">
+            <div class="preview-header">
+                <div class="preview-dot"></div>
+                <div class="preview-dot"></div>
+                <div class="preview-dot"></div>
+                <span style="margin-left: 10px; color:#888;">Smart Finder</span>
+            </div>
+            <div class="preview-search">
+                🔍 chro
+            </div>
+            <div class="preview-result">
+                <div class="icon">🌐</div>
+                <div>
+                    <div class="name">Google Chrome</div>
+                    <div class="path">C:\Program Files\Google\Chrome\chrome.exe</div>
+                </div>
+            </div>
+            <div class="preview-result">
+                <div class="icon">📁</div>
+                <div>
+                    <div class="name">Chrome User Data</div>
+                    <div class="path">C:\Users\User\AppData\Local\Google\Chrome</div>
+                </div>
+            </div>
+            <div class="preview-result">
+                <div class="icon">⚙️</div>
+                <div>
+                    <div class="name">Chrome Cleanup Tool</div>
+                    <div class="path">C:\Program Files\Google\Chrome Cleanup\cleanup.exe</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Section -->
+    <div class="download-section">
+        <a href="SmartFinder_insall.zip" class="download-btn" download>
+            ⬇️ ดาวน์โหลด Smart Finder
+            <span class="size-badge">~100 KB</span>
+        </a>
+        <div class="version">
+            เวอร์ชัน 1.0.1 | Windows 7/8/10/11 (64-bit) | ฟรี 100%
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="instructions">
+        <h2 style="text-align: center; margin-bottom: 30px;">📖 วิธีใช้งาน</h2>
+        
+        <div class="instruction-step">
+            <div class="step-number">1</div>
+            <div class="step-text">
+                <strong>ติดตั้ง</strong> — ดับเบิลคลิก SmartFinderSetup.exe แล้วกด Install
+            </div>
+        </div>
+        
+        <div class="instruction-step">
+            <div class="step-number">2</div>
+            <div class="step-text">
+                <strong>รอสักครู่</strong> — ครั้งแรกโปรแกรมจะสแกนแอพในคอม (ใช้เวลา 1-2 นาที)
+            </div>
+        </div>
+        
+        <div class="instruction-step">
+            <div class="step-number">3</div>
+            <div class="step-text">
+                <strong>กด Hotkey</strong> — <strong style="color:#ffd700;">Ctrl + Alt + Space</strong> ได้จากทุกที่
+            </div>
+        </div>
+        
+        <div class="instruction-step">
+            <div class="step-number">4</div>
+            <div class="step-text">
+                <strong>พิมพ์ค้นหา</strong> — พิมพ์ชื่อแอพที่ต้องการ แล้วกด Enter เพื่อเปิด
+            </div>
+        </div>
+    </div>
+
+    <!-- Hotkey Reference -->
+    <div class="instructions">
+        <h2 style="text-align: center; margin-bottom: 30px;">⌨️ ปุ่มลัด</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:15px; text-align:center;">
+                <div style="font-size:24px; margin-bottom:8px;">🔍</div>
+                <div style="background:#2d2d44; display:inline-block; padding:5px 12px; border-radius:8px;">Ctrl+Alt+Space</div>
+                <div style="margin-top:8px; font-size:14px; color:#b8c6db;">เปิด/ปิดหน้าค้นหา</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:15px; text-align:center;">
+                <div style="font-size:24px; margin-bottom:8px;">⬆️ ⬇️</div>
+                <div style="background:#2d2d44; display:inline-block; padding:5px 12px; border-radius:8px;">↑ / ↓</div>
+                <div style="margin-top:8px; font-size:14px; color:#b8c6db;">เลื่อนเลือกผลลัพธ์</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:15px; text-align:center;">
+                <div style="font-size:24px; margin-bottom:8px;">⏎</div>
+                <div style="background:#2d2d44; display:inline-block; padding:5px 12px; border-radius:8px;">Enter</div>
+                <div style="margin-top:8px; font-size:14px; color:#b8c6db;">เปิดแอพที่เลือก</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:15px; text-align:center;">
+                <div style="font-size:24px; margin-bottom:8px;">⎋</div>
+                <div style="background:#2d2d44; display:inline-block; padding:5px 12px; border-radius:8px;">ESC</div>
+                <div style="margin-top:8px; font-size:14px; color:#b8c6db;">ปิดหน้าค้นหา</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>🔍 Smart Finder — ฟรี ไม่มีโฆษณา ไม่เก็บข้อมูลส่วนตัว</p>
+        <p style="margin-top: 10px;"> <span style="color:#00b4d8;"></span></p>
+    </div>
+
+</body>
+</html>
