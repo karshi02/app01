@@ -1,440 +1,845 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Finder - ตัวเปิดแอพด่วนสำหรับ Windows</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Finder — Universal App Launcher for Windows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0b0c0f;
+  --bg2:       #111318;
+  --bg3:       #181b22;
+  --surface:   #1e222c;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --text:      #e8eaf0;
+  --muted:     #8890a4;
+  --accent:    #4a8fff;
+  --accent2:   #7eb8ff;
+  --accent-dim:rgba(74,143,255,0.12);
+  --green:     #3dd68c;
+  --green-dim: rgba(61,214,140,0.1);
+  --gold:      #f5c842;
+}
 
-        body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            color: #fff;
-        }
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:0;
+}
 
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            padding: 80px 20px 60px;
-            background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%);
-        }
+/* Language Switcher */
+.lang-switch {
+  position:fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 101;
+  display: flex;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 40px;
+  padding: 4px;
+  backdrop-filter: blur(10px);
+}
+.lang-btn {
+  background: transparent;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 32px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.lang-btn.active {
+  background: var(--accent);
+  color: white;
+}
+.lang-btn:hover:not(.active) {
+  background: var(--bg3);
+  color: var(--text);
+}
 
-        .logo {
-            font-size: 80px;
-            margin-bottom: 20px;
-            animation: float 3s ease-in-out infinite;
-        }
+/* NAV */
+nav {
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 48px;
+  height:64px;
+  background:rgba(11,12,15,0.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:15px;
+  font-weight:600;
+  color:var(--text);
+  text-decoration:none;
+}
+.nav-logo-icon {
+  width:30px; height:30px;
+  background:var(--accent);
+  border-radius:8px;
+  display:grid;
+  place-items:center;
+  font-size:14px;
+  color:#fff;
+}
+.nav-links {
+  display:flex;
+  align-items:center;
+  gap:32px;
+  list-style:none;
+}
+.nav-links a {
+  color:var(--muted);
+  text-decoration:none;
+  font-size:14px;
+  transition:color .2s;
+}
+.nav-links a:hover { color:var(--text); }
+.nav-cta {
+  background:var(--accent);
+  color:#fff !important;
+  padding:8px 20px;
+  border-radius:8px;
+  font-weight:500;
+}
+.nav-cta:hover { background:#3a7af0 !important; }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
+/* HERO */
+.hero {
+  position:relative;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:120px 24px 80px;
+  z-index:1;
+}
+.hero::after {
+  content:'';
+  position:absolute;
+  top:10%;left:50%;
+  transform:translateX(-50%);
+  width:800px;height:600px;
+  background:radial-gradient(ellipse,rgba(74,143,255,0.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-eyebrow {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:var(--accent-dim);
+  border:1px solid rgba(74,143,255,0.25);
+  border-radius:100px;
+  padding:6px 16px;
+  font-size:12px;
+  font-weight:500;
+  color:var(--accent2);
+  margin-bottom:28px;
+}
+.hero-eyebrow::before {
+  content:'';
+  width:6px;height:6px;
+  background:var(--accent);
+  border-radius:50%;
+}
+h1 {
+  font-size:clamp(40px,6vw,72px);
+  font-weight:600;
+  letter-spacing:-0.03em;
+  line-height:1.1;
+  color:#fff;
+  max-width:900px;
+}
+h1 em { font-style:normal; color:var(--accent); }
+.hero-sub {
+  margin-top:20px;
+  font-size:clamp(16px,2vw,20px);
+  color:var(--muted);
+  max-width:560px;
+}
+.hero-hotkey {
+  margin-top:32px;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-family:'DM Mono',monospace;
+  font-size:14px;
+  color:var(--muted);
+}
+.key {
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-bottom:3px solid var(--border2);
+  border-radius:6px;
+  padding:4px 10px;
+  color:var(--text);
+  font-size:13px;
+  font-family:'DM Mono',monospace;
+}
+.hero-actions {
+  margin-top:44px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.btn-primary {
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  background:var(--accent);
+  color:#fff;
+  padding:14px 32px;
+  border-radius:10px;
+  font-size:16px;
+  font-weight:500;
+  text-decoration:none;
+  transition:all .2s;
+}
+.btn-primary:hover {
+  background:#3a7af0;
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(74,143,255,0.3);
+}
+.btn-secondary {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:transparent;
+  color:var(--muted);
+  padding:14px 24px;
+  border-radius:10px;
+  font-size:15px;
+  text-decoration:none;
+  border:1px solid var(--border2);
+}
+.btn-secondary:hover {
+  border-color:var(--border2);
+  color:var(--text);
+}
+.badge-free {
+  font-size:11px;
+  font-weight:500;
+  background:var(--green-dim);
+  color:var(--green);
+  border:1px solid rgba(61,214,140,0.2);
+  border-radius:100px;
+  padding:3px 10px;
+  margin-left:4px;
+}
+.hero-stats {
+  margin-top:64px;
+  display:flex;
+  gap:48px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.stat { text-align:center; }
+.stat-num {
+  font-size:28px;
+  font-weight:600;
+  color:#fff;
+}
+.stat-label {
+  font-size:13px;
+  color:var(--muted);
+  margin-top:2px;
+}
 
-        h1 {
-            font-size: 48px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #fff 0%, #a8c0ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 15px;
-        }
+/* DEMO */
+.demo-section {
+  position:relative;
+  z-index:1;
+  padding:0 24px 100px;
+  display:flex;
+  justify-content:center;
+}
+.window-frame {
+  width:100%;
+  max-width:640px;
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 0 0 1px var(--border), 0 40px 80px rgba(0,0,0,0.5);
+}
+.window-bar {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 16px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+}
+.dot { width:12px;height:12px;border-radius:50%; }
+.dot-r { background:#ff5f57; }
+.dot-y { background:#febc2e; }
+.dot-g { background:#28c840; }
+.window-title {
+  flex:1;
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+  font-family:'DM Mono',monospace;
+}
+.search-bar {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg2);
+}
+.search-icon { color:var(--accent); font-size:16px; }
+.search-input {
+  flex:1;
+  font-size:18px;
+  font-family:'DM Sans',sans-serif;
+  color:var(--text);
+  background:transparent;
+  border:none;
+  outline:none;
+}
+.cursor-blink {
+  display:inline-block;
+  width:2px;height:18px;
+  background:var(--accent);
+  border-radius:1px;
+  animation:blink 1s step-end infinite;
+  vertical-align:middle;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.result-list { padding:8px 0; }
+.result-item {
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:10px 20px;
+  transition:background .15s;
+}
+.result-item:hover, .result-item.active { background:var(--surface); }
+.result-item.active { border-left:2px solid var(--accent); padding-left:18px; }
+.result-icon {
+  width:36px;height:36px;
+  border-radius:8px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  display:grid;
+  place-items:center;
+  font-size:18px;
+}
+.result-info { flex:1; min-width:0; }
+.result-name {
+  font-size:14px;
+  font-weight:500;
+  color:var(--text);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.result-path {
+  font-size:11px;
+  color:var(--muted);
+  font-family:'DM Mono',monospace;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.result-type {
+  font-size:10px;
+  font-weight:500;
+  padding:2px 8px;
+  border-radius:4px;
+}
+.type-app { background:var(--accent-dim); color:var(--accent2); }
+.type-recent{ background:var(--green-dim); color:var(--green); }
+.window-footer {
+  display:flex;
+  gap:16px;
+  padding:10px 20px;
+  border-top:1px solid var(--border);
+  background:var(--bg2);
+}
+.hint {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  color:var(--muted);
+}
 
-        .tagline {
-            font-size: 20px;
-            color: #a8c0ff;
-            margin-bottom: 10px;
-        }
+/* SECTIONS */
+.section {
+  position:relative;
+  z-index:1;
+  max-width:1100px;
+  margin:0 auto;
+  padding:80px 24px;
+}
+.section-label {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:16px;
+}
+.section-title {
+  font-size:clamp(28px,4vw,42px);
+  font-weight:600;
+  letter-spacing:-0.025em;
+  color:#fff;
+  max-width:600px;
+  margin-bottom:16px;
+}
+.section-sub {
+  font-size:16px;
+  color:var(--muted);
+  max-width:520px;
+  margin-bottom:60px;
+}
+.features-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+}
+.feat {
+  background:var(--bg);
+  padding:36px 32px;
+  transition:background .2s;
+}
+.feat:hover { background:var(--bg2); }
+.feat-icon {
+  width:44px;height:44px;
+  background:var(--accent-dim);
+  border:1px solid rgba(74,143,255,0.2);
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  font-size:20px;
+  margin-bottom:20px;
+}
+.feat h3 {
+  font-size:16px;
+  font-weight:500;
+  color:#fff;
+  margin-bottom:8px;
+}
+.feat p {
+  font-size:14px;
+  color:var(--muted);
+  line-height:1.65;
+}
 
-        .hotkey-badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-family: monospace;
-            font-size: 18px;
-            margin-top: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
+/* STEPS */
+.steps {
+  display:flex;
+  flex-direction:column;
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+}
+.step {
+  display:flex;
+  align-items:flex-start;
+  gap:28px;
+  padding:32px 36px;
+  background:var(--bg);
+}
+.step:hover { background:var(--bg2); }
+.step-num {
+  width:36px;height:36px;
+  border-radius:50%;
+  background:var(--accent-dim);
+  border:1px solid rgba(74,143,255,0.25);
+  display:grid;
+  place-items:center;
+  font-family:'DM Mono',monospace;
+  font-size:13px;
+  font-weight:500;
+  color:var(--accent);
+}
+.step-body h3 {
+  font-size:16px;
+  font-weight:500;
+  color:#fff;
+  margin-bottom:6px;
+}
+.step-body p {
+  font-size:14px;
+  color:var(--muted);
+}
+.step-body code {
+  font-family:'DM Mono',monospace;
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:5px;
+  padding:2px 8px;
+  font-size:13px;
+  color:var(--gold);
+}
 
-        .hotkey-badge span {
-            background: #2d2d44;
-            padding: 5px 12px;
-            border-radius: 8px;
-            margin: 0 5px;
-            font-weight: bold;
-            color: #ffd700;
-        }
+/* SPECS */
+.specs-grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+}
+.spec {
+  background:var(--bg);
+  padding:28px 32px;
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+.spec-icon {
+  width:40px;height:40px;
+  background:var(--surface);
+  border-radius:8px;
+  display:grid;
+  place-items:center;
+  font-size:18px;
+}
+.spec-label {
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  margin-bottom:4px;
+}
+.spec-value {
+  font-size:16px;
+  font-weight:500;
+  color:#fff;
+}
 
-        /* Features Grid */
-        .features {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 60px 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-        }
+/* CTA & DOWNLOAD OPTIONS */
+.cta-banner {
+  position:relative;
+  z-index:1;
+  margin:0 24px 100px;
+  max-width:1052px;
+  margin-left:auto;
+  margin-right:auto;
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:20px;
+  padding:60px 48px;
+  text-align:center;
+}
+.cta-banner h2 {
+  font-size:clamp(24px,3vw,36px);
+  font-weight:600;
+  color:#fff;
+  margin-bottom:12px;
+}
+.cta-banner p {
+  font-size:16px;
+  color:var(--muted);
+  margin-bottom:36px;
+}
+.download-options {
+  display:flex;
+  gap:24px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+.download-card {
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  padding:24px 32px;
+  text-align:center;
+  transition:transform .2s, border-color .2s;
+  min-width:220px;
+}
+.download-card:hover {
+  transform:translateY(-4px);
+  border-color:var(--accent);
+}
+.download-icon {
+  font-size:48px;
+  margin-bottom:12px;
+}
+.download-card h3 {
+  font-size:18px;
+  font-weight:600;
+  color:#fff;
+  margin-bottom:8px;
+}
+.download-card p {
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:16px;
+}
+.download-link {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:var(--accent);
+  color:#fff;
+  padding:10px 24px;
+  border-radius:8px;
+  text-decoration:none;
+  font-size:14px;
+  font-weight:500;
+  transition:background .2s;
+}
+.download-link:hover { background:#3a7af0; }
+.download-link-small {
+  background:transparent;
+  border:1px solid var(--border2);
+  color:var(--text);
+}
+.download-link-small:hover {
+  background:var(--surface);
+  border-color:var(--accent);
+}
+.cta-meta {
+  font-size:12px;
+  color:var(--muted);
+  margin-top:20px;
+}
 
-        .feature-card {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px 25px;
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+/* FOOTER */
+footer {
+  position:relative;
+  z-index:1;
+  border-top:1px solid var(--border);
+  padding:32px 48px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:16px;
+}
+.footer-logo {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:14px;
+  font-weight:500;
+  color:var(--text);
+  text-decoration:none;
+}
+.footer-links {
+  display:flex;
+  gap:24px;
+  list-style:none;
+}
+.footer-links a {
+  font-size:13px;
+  color:var(--muted);
+  text-decoration:none;
+}
+.footer-links a:hover { color:var(--text); }
+.footer-copy {
+  font-size:13px;
+  color:var(--muted);
+}
 
-        .feature-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255,255,255,0.08);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-
-        .feature-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-
-        .feature-card h3 {
-            font-size: 22px;
-            margin-bottom: 10px;
-        }
-
-        .feature-card p {
-            color: #b8c6db;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        /* Download Section */
-        .download-section {
-            text-align: center;
-            padding: 60px 20px 80px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 100%);
-        }
-
-        .download-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            background: linear-gradient(135deg, #00b4d8, #0077b6);
-            padding: 18px 42px;
-            border-radius: 60px;
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 10px 30px rgba(0,180,216,0.3);
-            border: none;
-            cursor: pointer;
-        }
-
-        .download-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 40px rgba(0,180,216,0.4);
-        }
-
-        .download-btn:active {
-            transform: scale(0.98);
-        }
-
-        .version {
-            margin-top: 20px;
-            color: #7a8cae;
-            font-size: 14px;
-        }
-
-        .size-badge {
-            display: inline-block;
-            background: rgba(0,0,0,0.3);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-left: 10px;
-        }
-
-        /* Screenshot Section */
-        .screenshot {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            text-align: center;
-        }
-
-        .screenshot-preview {
-            background: #0a0a1a;
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid #2a2a4a;
-            font-family: monospace;
-            text-align: left;
-        }
-
-        .preview-header {
-            background: #1a1a2e;
-            padding: 12px 16px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .preview-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #ff5f56;
-        }
-
-        .preview-dot:nth-child(2) { background: #ffbd2e; }
-        .preview-dot:nth-child(3) { background: #27c93f; }
-
-        .preview-search {
-            background: #0f0f23;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            color: #00ff88;
-        }
-
-        .preview-result {
-            padding: 10px;
-            border-bottom: 1px solid #1a1a3a;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .preview-result .icon { font-size: 24px; }
-        .preview-result .name { color: #fff; }
-        .preview-result .path { color: #6c6c8a; font-size: 12px; }
-
-        /* Instructions */
-        .instructions {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        .instruction-step {
-            background: rgba(255,255,255,0.03);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            border-left: 4px solid #00b4d8;
-        }
-
-        .step-number {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #00b4d8, #0077b6);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 20px;
-        }
-
-        .step-text {
-            flex: 1;
-        }
-
-        .step-text strong {
-            color: #00b4d8;
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 40px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            color: #6c6c8a;
-            font-size: 14px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            h1 { font-size: 32px; }
-            .tagline { font-size: 16px; }
-            .download-btn { font-size: 18px; padding: 14px 28px; }
-            .feature-card { padding: 20px; }
-            .instruction-step { flex-direction: column; text-align: center; }
-        }
-    </style>
+@media (max-width:900px) {
+  nav { padding:0 24px; }
+  .nav-links { display:none; }
+  .lang-switch { top: 72px; right: 16px; }
+  .features-grid { grid-template-columns:1fr; }
+  .specs-grid { grid-template-columns:1fr; }
+  footer { padding:24px; flex-direction:column; align-items:flex-start; }
+  .cta-banner { padding:40px 24px; }
+  .download-options { flex-direction:column; align-items:center; }
+  .download-card { width:100%; max-width:280px; }
+}
+</style>
 </head>
 <body>
 
-    <!-- Hero Section -->
-    <div class="hero">
-        <div class="logo">🔍</div>
-        <h1>Smart Finder</h1>
-        <div class="tagline">Universal App Launcher for Windows</div>
-        <div class="hotkey-badge">
-            กด <span>Ctrl + Alt + Space</span> ได้ทุกที่ → เปิดแอพทันที
-        </div>
-    </div>
+<!-- Language Switcher -->
+<div class="lang-switch">
+  <button class="lang-btn active" onclick="setLanguage('th')">ไทย</button>
+  <button class="lang-btn" onclick="setLanguage('en')">English</button>
+</div>
 
-    <!-- Features -->
-    <div class="features">
-        <div class="feature-card">
-            <div class="feature-icon">⚡</div>
-            <h3>Global Hotkey</h3>
-            <p>กด hotkey ได้จากทุกหน้าต่าง ไม่ต้องเปิด Start Menu หรือ Explorer</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">🎨</div>
-            <h3>แสดงไอคอนจริง</h3>
-            <p>เห็นไอคอนของแต่ละแอพ ทำให้เลือกง่ายและรวดเร็ว</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <h3>Smart Ranking</h3>
-            <p>แอพที่ใช้บ่อยจะขึ้นก่อนอัตโนมัติ เรียนรู้นิสัยการใช้งานคุณ</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">🚀</div>
-            <h3>เร็วทันใจ</h3>
-            <p>ผลลัพธ์อัปเดตทันทีขณะพิมพ์ โหลดเร็ว ใช้ RAM แค่ ~10MB</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">🔧</div>
-            <h3>ปรับได้หมด</h3>
-            <p>เปลี่ยน hotkey, ตั้งค่า startup, ปรับจำนวนผลลัพธ์ได้ตามชอบ</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">🪶</div>
-            <h3>เบาที่สุด</h3>
-            <p>ไฟล์ติดตั้งแค่ ~100KB รองรับ Windows 7 ถึง 11</p>
-        </div>
-    </div>
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">🔍</div>
+    <span data-th="Smart Finder" data-en="Smart Finder">Smart Finder</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features" data-th="Features" data-en="Features">Features</a></li>
+    <li><a href="#howto" data-th="วิธีใช้" data-en="How to">วิธีใช้</a></li>
+    <li><a href="#specs" data-th="Specs" data-en="Specs">Specs</a></li>
+    <li><a href="#download" class="nav-cta" data-th="⬇ ดาวน์โหลด" data-en="⬇ Download">⬇ ดาวน์โหลด</a></li>
+  </ul>
+</nav>
 
-    <!-- Screenshot Preview -->
-    <div class="screenshot">
-        <div class="screenshot-preview">
-            <div class="preview-header">
-                <div class="preview-dot"></div>
-                <div class="preview-dot"></div>
-                <div class="preview-dot"></div>
-                <span style="margin-left: 10px; color:#888;">Smart Finder</span>
-            </div>
-            <div class="preview-search">
-                🔍 chro
-            </div>
-            <div class="preview-result">
-                <div class="icon">🌐</div>
-                <div>
-                    <div class="name">Google Chrome</div>
-                    <div class="path">C:\Program Files\Google\Chrome\chrome.exe</div>
-                </div>
-            </div>
-            <div class="preview-result">
-                <div class="icon">📁</div>
-                <div>
-                    <div class="name">Chrome User Data</div>
-                    <div class="path">C:\Users\User\AppData\Local\Google\Chrome</div>
-                </div>
-            </div>
-            <div class="preview-result">
-                <div class="icon">⚙️</div>
-                <div>
-                    <div class="name">Chrome Cleanup Tool</div>
-                    <div class="path">C:\Program Files\Google\Chrome Cleanup\cleanup.exe</div>
-                </div>
-            </div>
-        </div>
-    </div>
+<section class="hero">
+  <div class="hero-eyebrow" data-th="Windows App Launcher" data-en="Windows App Launcher">Windows App Launcher</div>
+  <h1><span data-th="ค้นหาและเปิดแอพ" data-en="Search & Launch Apps">ค้นหาและเปิดแอพ</span><br><em data-th="ได้ทุกที่ทุกเวลา" data-en="From Anywhere">ได้ทุกที่ทุกเวลา</em></h1>
+  <p class="hero-sub" data-th="กด hotkey จากทุกหน้าต่าง — popup ค้นหาขึ้นทันที พิมพ์ชื่อแอพ กด Enter เปิดได้เลย" data-en="Press hotkey anywhere — popup appears instantly. Type app name, press Enter to launch.">กด hotkey จากทุกหน้าต่าง — popup ค้นหาขึ้นทันที พิมพ์ชื่อแอพ กด Enter เปิดได้เลย</p>
+  <div class="hero-hotkey">
+    <span class="key">Ctrl</span>+<span class="key">Alt</span>+<span class="key">Space</span>
+    <span style="margin-left:4px;" data-th="→ เปิดค้นหาได้ทันที" data-en="→ Open search instantly">→ เปิดค้นหาได้ทันที</span>
+  </div>
+  <div class="hero-actions">
+    <a href="#download" class="btn-primary"><span data-th="⬇ ดาวน์โหลด Smart Finder" data-en="⬇ Download Smart Finder">⬇ ดาวน์โหลด Smart Finder</span> <span class="badge-free" data-th="ฟรี" data-en="Free">ฟรี</span></a>
+    <a href="#howto" class="btn-secondary"><span data-th="วิธีใช้งาน" data-en="How to use">วิธีใช้งาน</span> →</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">~100<span style="font-size:16px;"> KB</span></div><div class="stat-label" data-th="ขนาดไฟล์" data-en="File size">ขนาดไฟล์</div></div>
+    <div class="stat"><div class="stat-num">~10<span style="font-size:16px;"> MB</span></div><div class="stat-label" data-th="RAM ที่ใช้" data-en="RAM usage">RAM ที่ใช้</div></div>
+    <div class="stat"><div class="stat-num">Win<span style="font-size:16px;"> 7–11</span></div><div class="stat-label" data-th="รองรับ" data-en="Support">รองรับ</div></div>
+    <div class="stat"><div class="stat-num">0<span style="font-size:16px;"> ads</span></div><div class="stat-label" data-th="ไม่มีโฆษณา" data-en="No ads">ไม่มีโฆษณา</div></div>
+  </div>
+</section>
 
-    <!-- Download Section -->
-    <div class="download-section">
-        <a href="SmartFinder_insall.zip" class="download-btn" download>
-            ⬇️ ดาวน์โหลด Smart Finder
-            <span class="size-badge">~100 KB</span>
-        </a>
-        <div class="version">
-            เวอร์ชัน 1.0.1 | Windows 7/8/10/11 (64-bit) | ฟรี 100%
-        </div>
+<div class="demo-section">
+  <div class="window-frame">
+    <div class="window-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><div class="window-title">Smart Finder</div></div>
+    <div class="search-bar"><span class="search-icon">🔍</span><span class="search-input">chro<span class="cursor-blink"></span></span></div>
+    <div class="result-list">
+      <div class="result-item active"><div class="result-icon">🌐</div><div class="result-info"><div class="result-name">Google Chrome</div><div class="result-path">C:\Program Files\Google\Chrome\chrome.exe</div></div><span class="result-type type-app">APP</span></div>
+      <div class="result-item"><div class="result-icon">⚙️</div><div class="result-info"><div class="result-name">Chrome Remote Desktop</div><div class="result-path">C:\Program Files\Google\Chrome Remote Desktop</div></div><span class="result-type type-app">APP</span></div>
+      <div class="result-item"><div class="result-icon">📄</div><div class="result-info"><div class="result-name">chrome_settings.json</div><div class="result-path">C:\Users\User\AppData\Local\Google\Chrome</div></div><span class="result-type type-recent">RECENT</span></div>
     </div>
+    <div class="window-footer"><span class="hint"><span class="key" style="font-size:10px;padding:1px 6px;">↑↓</span> <span data-th="เลื่อน" data-en="Navigate">เลื่อน</span></span><span class="hint"><span class="key" style="font-size:10px;padding:1px 6px;">↵</span> <span data-th="เปิด" data-en="Launch">เปิด</span></span><span class="hint"><span class="key" style="font-size:10px;padding:1px 6px;">ESC</span> <span data-th="ปิด" data-en="Close">ปิด</span></span></div>
+  </div>
+</div>
 
-    <!-- Instructions -->
-    <div class="instructions">
-        <h2 style="text-align: center; margin-bottom: 30px;">📖 วิธีใช้งาน</h2>
-        
-        <div class="instruction-step">
-            <div class="step-number">1</div>
-            <div class="step-text">
-                <strong>ติดตั้ง</strong> — ดับเบิลคลิก SmartFinderSetup.exe แล้วกด Install
-            </div>
-        </div>
-        
-        <div class="instruction-step">
-            <div class="step-number">2</div>
-            <div class="step-text">
-                <strong>รอสักครู่</strong> — ครั้งแรกโปรแกรมจะสแกนแอพในคอม (ใช้เวลา 1-2 นาที)
-            </div>
-        </div>
-        
-        <div class="instruction-step">
-            <div class="step-number">3</div>
-            <div class="step-text">
-                <strong>กด Hotkey</strong> — <strong style="color:#ffd700;">Ctrl + Alt + Space</strong> ได้จากทุกที่
-            </div>
-        </div>
-        
-        <div class="instruction-step">
-            <div class="step-number">4</div>
-            <div class="step-text">
-                <strong>พิมพ์ค้นหา</strong> — พิมพ์ชื่อแอพที่ต้องการ แล้วกด Enter เพื่อเปิด
-            </div>
-        </div>
-    </div>
+<section class="section" id="features">
+  <div class="section-label" data-th="Features" data-en="Features">Features</div>
+  <h2 class="section-title" data-th="ครบทุกอย่างที่ต้องการ" data-en="Everything You Need">ครบทุกอย่างที่ต้องการ</h2>
+  <p class="section-sub" data-th="ออกแบบมาให้เร็ว เบา และไม่รบกวนการทำงาน" data-en="Designed to be fast, lightweight, and non-intrusive">ออกแบบมาให้เร็ว เบา และไม่รบกวนการทำงาน</p>
+  <div class="features-grid">
+    <div class="feat"><div class="feat-icon">⌨️</div><h3 data-th="Global Hotkey" data-en="Global Hotkey">Global Hotkey</h3><p data-th="กด Ctrl+Alt+Space ได้จากทุกหน้าต่าง" data-en="Press Ctrl+Alt+Space from any window">กด Ctrl+Alt+Space ได้จากทุกหน้าต่าง</p></div>
+    <div class="feat"><div class="feat-icon">🎨</div><h3 data-th="ไอคอนแอพจริง" data-en="Real App Icons">ไอคอนแอพจริง</h3><p data-th="แสดงไอคอน 32×32 จริง มองเห็นชัด" data-en="Real 32×32 icons, clear visibility">แสดงไอคอน 32×32 จริง มองเห็นชัด</p></div>
+    <div class="feat"><div class="feat-icon">📊</div><h3 data-th="Smart Ranking" data-en="Smart Ranking">Smart Ranking</h3><p data-th="แอพที่ใช้บ่อยขึ้นมาก่อน" data-en="Frequently used apps appear first">แอพที่ใช้บ่อยขึ้นมาก่อน</p></div>
+    <div class="feat"><div class="feat-icon">⚡</div><h3 data-th="เร็วทันใจ" data-en="Lightning Fast">เร็วทันใจ</h3><p data-th="ผลลัพธ์ real-time ขณะพิมพ์" data-en="Real-time results as you type">ผลลัพธ์ real-time ขณะพิมพ์</p></div>
+    <div class="feat"><div class="feat-icon">🔧</div><h3 data-th="ปรับได้ทุกอย่าง" data-en="Fully Configurable">ปรับได้ทุกอย่าง</h3><p data-th="เปลี่ยน hotkey, startup, max results" data-en="Change hotkey, startup, max results">เปลี่ยน hotkey, startup, max results</p></div>
+    <div class="feat"><div class="feat-icon">🪶</div><h3 data-th="เบา ไม่รบกวน" data-en="Lightweight">เบา ไม่รบกวน</h3><p data-th="RAM ~10MB ไม่มีโฆษณา" data-en="~10MB RAM, no ads">RAM ~10MB ไม่มีโฆษณา</p></div>
+  </div>
+</section>
 
-    <!-- Hotkey Reference -->
-    <div class="instructions">
-        <h2 style="text-align: center; margin-bottom: 30px;">⌨️ ปุ่มลัด</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:15px; text-align:center;">
-                <div style="font-size:24px; margin-bottom:8px;">🔍</div>
-                <div style="background:#2d2d44; display:inline-block; padding:5px 12px; border-radius:8px;">Ctrl+Alt+Space</div>
-                <div style="margin-top:8px; font-size:14px; color:#b8c6db;">เปิด/ปิดหน้าค้นหา</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:15px; text-align:center;">
-                <div style="font-size:24px; margin-bottom:8px;">⬆️ ⬇️</div>
-                <div style="background:#2d2d44; display:inline-block; padding:5px 12px; border-radius:8px;">↑ / ↓</div>
-                <div style="margin-top:8px; font-size:14px; color:#b8c6db;">เลื่อนเลือกผลลัพธ์</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:15px; text-align:center;">
-                <div style="font-size:24px; margin-bottom:8px;">⏎</div>
-                <div style="background:#2d2d44; display:inline-block; padding:5px 12px; border-radius:8px;">Enter</div>
-                <div style="margin-top:8px; font-size:14px; color:#b8c6db;">เปิดแอพที่เลือก</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:15px; text-align:center;">
-                <div style="font-size:24px; margin-bottom:8px;">⎋</div>
-                <div style="background:#2d2d44; display:inline-block; padding:5px 12px; border-radius:8px;">ESC</div>
-                <div style="margin-top:8px; font-size:14px; color:#b8c6db;">ปิดหน้าค้นหา</div>
-            </div>
-        </div>
-    </div>
+<section class="section" id="howto">
+  <div class="section-label" data-th="วิธีใช้งาน" data-en="How to Use">วิธีใช้งาน</div>
+  <h2 class="section-title" data-th="พร้อมใช้งานใน 3 ขั้นตอน" data-en="Ready in 3 Steps">พร้อมใช้งานใน 3 ขั้นตอน</h2>
+  <p class="section-sub" data-th="ติดตั้งครั้งเดียว ใช้งานได้ทันที" data-en="Install once, use forever">ติดตั้งครั้งเดียว ใช้งานได้ทันที</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><div class="step-body"><h3 data-th="ดาวน์โหลดและติดตั้ง" data-en="Download & Install">ดาวน์โหลดและติดตั้ง</h3><p data-th="รัน SmartFinderSetup.exe กด Install จากนั้น เปิดแอพ" data-en="Run SmartFinderSetup.exe, click Install, then launch">รัน <code>SmartFinderSetup.exe</code> กด Install จากนั้น เปิดแอพ</p></div></div>
+    <div class="step"><div class="step-num">02</div><div class="step-body"><h3 data-th="รอ scan ครั้งแรก (~1 นาที)" data-en="Wait for first scan (~1 min)">รอ scan ครั้งแรก (~1 นาที)</h3><p data-th="โปรแกรมสร้าง index ให้อัตโนมัติ" data-en="Program builds index automatically">โปรแกรมสร้าง index ให้อัตโนมัติ</p></div></div>
+    <div class="step"><div class="step-num">03</div><div class="step-body"><h3 data-th="กด Ctrl+Alt+Space ได้ทุกที่" data-en="Press Ctrl+Alt+Space Anywhere">กด <code>Ctrl+Alt+Space</code> ได้ทุกที่</h3><p data-th="พิมพ์ค้นหา ↑↓ เลือก Enter เปิด" data-en="Type to search, ↑↓ to navigate, Enter to launch">พิมพ์ค้นหา ↑↓ เลือก Enter เปิด</p></div></div>
+  </div>
+</section>
 
-    <!-- Footer -->
-    <div class="footer">
-        <p>🔍 Smart Finder — ฟรี ไม่มีโฆษณา ไม่เก็บข้อมูลส่วนตัว</p>
-        <p style="margin-top: 10px;"> <span style="color:#00b4d8;"></span></p>
+<section class="section" id="specs">
+  <div class="section-label" data-th="Specifications" data-en="Specifications">Specifications</div>
+  <h2 class="section-title" data-th="รองรับทุก Windows" data-en="Compatible with All Windows">รองรับทุก Windows</h2>
+  <div class="specs-grid">
+    <div class="spec"><div class="spec-icon">🖥️</div><div><div class="spec-label" data-th="System" data-en="System">System</div><div class="spec-value">Windows 7 / 8 / 10 / 11 (64-bit)</div></div></div>
+    <div class="spec"><div class="spec-icon">💾</div><div><div class="spec-label" data-th="ขนาดไฟล์" data-en="File Size">ขนาดไฟล์</div><div class="spec-value">~100 KB</div></div></div>
+    <div class="spec"><div class="spec-icon">🧠</div><div><div class="spec-label" data-th="RAM ขณะรัน" data-en="RAM Usage">RAM ขณะรัน</div><div class="spec-value">~10 MB</div></div></div>
+    <div class="spec"><div class="spec-icon">📦</div><div><div class="spec-label" data-th="Runtime" data-en="Runtime">Runtime</div><div class="spec-value" data-th="ไม่ต้องติดตั้งเพิ่ม" data-en="No additional runtime required">ไม่ต้องติดตั้งเพิ่ม</div></div></div>
+    <div class="spec"><div class="spec-icon">🔐</div><div><div class="spec-label" data-th="ความเป็นส่วนตัว" data-en="Privacy">ความเป็นส่วนตัว</div><div class="spec-value" data-th="ทำงาน offline ไม่ส่งข้อมูล" data-en="Works offline, no data collection">ทำงาน offline ไม่ส่งข้อมูล</div></div></div>
+    <div class="spec"><div class="spec-icon">📋</div><div><div class="spec-label">License</div><div class="spec-value" data-th="MIT — ฟรี ใช้ได้ แก้ได้ แจกได้" data-en="MIT — Free, use, modify, share">MIT — ฟรี ใช้ได้ แก้ได้ แจกได้</div></div></div>
+  </div>
+</section>
+
+<!-- DOWNLOAD SECTION -->
+<section class="cta-banner" id="download">
+  <h2 data-th="พร้อมเปิดแอพเร็วกว่าเดิม?" data-en="Ready to launch apps faster?">พร้อมเปิดแอพเร็วกว่าเดิม?</h2>
+  <p data-th="ดาวน์โหลดฟรี ติดตั้งใน 30 วินาที ไม่มีโฆษณา" data-en="Free download, install in 30 seconds, no ads">ดาวน์โหลดฟรี ติดตั้งใน 30 วินาที ไม่มีโฆษณา</p>
+  <div class="download-options">
+    <div class="download-card">
+      <div class="download-icon">📦</div>
+      <h3 data-th="ตัวติดตั้ง" data-en="Installer">ตัวติดตั้ง</h3>
+      <p><span data-th="ติดตั้งง่าย พร้อมใช้งานทันที" data-en="Easy install, ready to use">ติดตั้งง่าย พร้อมใช้งานทันที</span><br>SmartFinderSetup.exe</p>
+      <a href="SmartFinderSetup.exe" download class="download-link"><span data-th="⬇ ดาวน์โหลด" data-en="⬇ Download">⬇ ดาวน์โหลด</span> (~100 KB)</a>
     </div>
+    <div class="download-card">
+      <div class="download-icon">🗂️</div>
+      <h3 data-th="แบบพกพา (Portable)" data-en="Portable">แบบพกพา (Portable)</h3>
+      <p><span data-th="ไม่ต้องติดตั้ง แตกzipใช้เลย" data-en="No install, extract and run">ไม่ต้องติดตั้ง แตกzipใช้เลย</span><br>SmartFinder_Portable.zip</p>
+      <a href="SmartFinder_Portable.zip" download class="download-link download-link-small">📥 <span data-th="ดาวน์โหลด ZIP" data-en="Download ZIP">ดาวน์โหลด ZIP</span></a>
+    </div>
+  </div>
+  <div class="cta-meta"><span data-th="เวอร์ชัน 1.0.1 · Windows 7–11 · " data-en="Version 1.0.1 · Windows 7–11 ·">เวอร์ชัน 1.0.1 · Windows 7–11 
+</section>
+
+<footer>
+  <a href="#" class="footer-logo"><div class="nav-logo-icon">🔍</div>Smart Finder</a>
+  <ul class="footer-links">
+    <li><a href="https://github.com/karshi02/FileFinder">GitHub</a></li>
+    <li><a href="#features" data-th="Features" data-en="Features">Features</a></li>
+    <li><a href="#howto" data-th="วิธีใช้" data-en="How to">วิธีใช้</a></li>
+    <li><a href="#download" data-th="ดาวน์โหลด" data-en="Download">ดาวน์โหลด</a></li>
+  </ul>
+  <span class="footer-copy" data-th=" ไม่เก็บข้อมูล" data-en=" · Free · No ads · No tracking">MIT License · ฟรี ไม่มีโฆษณา ไม่เก็บข้อมูล</span>
+</footer>
+
+<script>
+function setLanguage(lang) {
+  document.querySelectorAll('[data-th][data-en]').forEach(el => {
+    if (lang === 'th') {
+      el.innerText = el.getAttribute('data-th');
+    } else {
+      el.innerText = el.getAttribute('data-en');
+    }
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.querySelector(`.lang-btn[onclick="setLanguage('${lang}')"]`).classList.add('active');
+  localStorage.setItem('smartfinder_lang', lang);
+}
+
+const savedLang = localStorage.getItem('smartfinder_lang');
+if (savedLang && (savedLang === 'th' || savedLang === 'en')) {
+  setLanguage(savedLang);
+}
+</script>
 
 </body>
 </html>
