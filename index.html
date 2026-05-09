@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Finder — Universal App Launcher for Windows</title>
+<link rel="icon" type="image/png" href="imgs/finder.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -693,6 +694,11 @@ footer {
   .download-options { flex-direction:column; align-items:center; }
   .download-card { width:100%; max-width:280px; }
 }
+.nav-logo-icon img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
 </style>
 </head>
 <body>
@@ -704,10 +710,19 @@ footer {
 </div>
 
 <nav>
-  <a href="#" class="nav-logo">
+  <!-- <a href="#" class="nav-logo">
     <div class="nav-logo-icon">🔍</div>
     <span data-th="Smart Finder" data-en="Smart Finder">Smart Finder</span>
-  </a>
+  </a> -->
+  <a href="#" class="nav-logo">
+  <div class="nav-logo-icon">
+    <img src="imgs/finder.png" alt="Smart Finder Logo">
+  </div>
+  
+  <span data-th="Smart Finder" data-en="Smart Finder">
+    Smart Finder
+  </span>
+</a>
   <ul class="nav-links">
     <li><a href="#features" data-th="Features" data-en="Features">Features</a></li>
     <li><a href="#howto" data-th="วิธีใช้" data-en="How to">วิธีใช้</a></li>
@@ -789,7 +804,7 @@ footer {
 
 <!-- DOWNLOAD SECTION -->
 <section class="cta-banner" id="download">
-  <h2 data-th="พร้อมเปิดแอพเร็วกว่าเดิม?" data-en="Ready to launch apps faster?">พร้อมเปิดแอพเร็วกว่าเดิม?</h2>
+  <h2 data-th="พร้อมเปิดแอพเร็วกว่าเดิม?." data-en="Ready to launch apps faster?">พร้อมเปิดแอพเร็วกว่าเดิม?</h2>
   <p data-th="ดาวน์โหลดฟรี ติดตั้งใน 30 วินาที ไม่มีโฆษณา" data-en="Free download, install in 30 seconds, no ads">ดาวน์โหลดฟรี ติดตั้งใน 30 วินาที ไม่มีโฆษณา</p>
   <div class="download-options">
     <div class="download-card">
